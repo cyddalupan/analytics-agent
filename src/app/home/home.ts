@@ -10,8 +10,8 @@ import { ApiService } from '../api';
   styleUrl: './home.css'
 })
 export class HomeComponent implements OnInit {
-  dbResponse: any;
-  aiResponse: any;
+  dbResponse: any = null; // Initialize to null
+  aiResponse: any = null; // Initialize to null
   loadingDb: boolean = false;
   loadingAi: boolean = false;
   dbError: string | null = null;
@@ -27,6 +27,7 @@ export class HomeComponent implements OnInit {
   fetchDbData(): void {
     this.loadingDb = true;
     this.dbError = null;
+    this.dbResponse = null; // Clear previous data
     const query = 'SELECT applicantNumber, sub_employer, applicant_first, applicant_middle, applicant_last FROM applicant LIMIT 5';
     this.apiService.queryDb(query).subscribe({
       next: (data) => {
@@ -37,6 +38,7 @@ export class HomeComponent implements OnInit {
         console.error('DB API Error:', err);
         this.dbError = 'Failed to fetch DB data. Check console for details.';
         this.loadingDb = false;
+        this.dbResponse = null; // Ensure data is null on error
       }
     });
   }
@@ -44,6 +46,7 @@ export class HomeComponent implements OnInit {
   fetchAiData(): void {
     this.loadingAi = true;
     this.aiError = null;
+    this.aiResponse = null; // Clear previous data
     const systemPrompt = 'You are a helpful assistant.';
     const history = [{ role: 'user', content: 'What is the capital of France?' }];
     const lastMessage = 'What is the capital of Japan?';
@@ -57,6 +60,7 @@ export class HomeComponent implements OnInit {
         console.error('AI API Error:', err);
         this.aiError = 'Failed to fetch AI data. Check console for details.';
         this.loadingAi = false;
+        this.aiResponse = null; // Ensure data is null on error
       }
     });
   }

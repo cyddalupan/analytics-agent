@@ -138,6 +138,18 @@ echo "--- Build, staging, commit, and push complete. ---"
 2.  The script will build the Angular app into `./live/`, commit the changes (including the new build), and push them to `origin main`.
 3.  On the server, clone this repository (or trigger `gitpull.php`), and then ensure your web server points to the `./live/` directory.
 
+### Troubleshooting Deployment Paths
+
+During deployment, it's critical that the Angular `base-href` and the web server's `RewriteBase` (for Apache's `.htaccess`) precisely match the actual URL path where the application's `live/` content is served. Mismatches lead to `404 Not Found` errors for assets like `styles-*.css` and `main-*.js`.
+
+**Scenario:** Initial errors showed assets missing when the application was expected at `/analytics-agent/`, but the server was configured for `/agent/analytics/live/`.
+
+**Resolution:**
+1.  **Update `package.json`**: The `build` script's `base-href` was updated to `ng build --base-href /agent/analytics/live/`.
+2.  **Update `.htaccess`**: The `RewriteBase` directive in `./live/.htaccess` was updated to `RewriteBase /agent/analytics/live/`.
+
+This ensures that Angular generates asset paths correctly and the web server knows how to map those paths to the `index.html` for client-side routing. Always verify these paths when the deployment URL changes.
+
 ### `gitpull.php`
 
 This PHP script, located in the root of this repository, allows for server-side pulling of the latest code from the Git repository.
