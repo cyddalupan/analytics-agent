@@ -18,6 +18,7 @@
       <div class="chat-input">
           <input id="msg" class="form-control" [(ngModel)]="userMessage" (keyup.enter)="sendChatMessage()" placeholder="Ask AI about applicants…" [disabled]="loadingAi">
           <button class="btn btn-primary" (click)="sendChatMessage()" [disabled]="loadingAi">Send</button>
+          <button class="btn btn-success execute-query-btn" *ngIf="generatedQuery" (click)="runGeneratedQuery()">Execute Query</button>
       </div>
   </div>
 
