@@ -23,7 +23,6 @@ export class HomeComponent implements OnInit {
     dbQueryResult: any[] | null = null;
     showResultsTable: boolean = false;
     resultsTableHeaders: string[] = [];
-  generatedQuery: { query: string, params: any[] } | null = null;
     
     private schemaInfo: string = `
   Table: applicant
@@ -104,38 +103,31 @@ export class HomeComponent implements OnInit {
           const aiContent = data.response; // Assuming the AI response is in data.response
   
           try {
-                      const parsedResponse = JSON.parse(aiContent);
-                      if (parsedResponse.type === 'query' && parsedResponse.query) {
-                        this.generatedQuery = { query: parsedResponse.query, params: parsedResponse.params || [] };
-                        this.chatHistory.push({ role: 'assistant', content: `Got it! Here is the SQL query based on your request: \n\`\`\`sql\n${parsedResponse.query}\n\`\`\`\nParameters: \`${JSON.stringify(parsedResponse.params)}\`\nIs there anything else you would like to add to the query? You can click the "Execute Query" button below to run this query.` });
-                        this.cdr.detectChanges(); // Update UI with generated query
-                        // Do NOT execute query automatically
-                      } else {
-                        this.chatHistory.push({ role: 'assistant', content: aiContent });
-                      }
-                    } catch (e) {
-                      // Not a JSON response, treat as regular chat message
-                      this.chatHistory.push({ role: 'assistant', content: aiContent });
-                    }
-                    this.cdr.detectChanges(); // Manually trigger change detection
-                  },
-                  error: (err) => {
-                    console.error('AI API Error:', err);
-                    this.aiError = 'Failed to get AI response. Check console for details.';
-                    this.loadingAi = false;
-                    this.chatHistory.push({ role: 'assistant', content: 'Error communicating with AI.' });
-                    this.cdr.detectChanges(); // Manually trigger change detection on error
-                  }
-                });
-              }
-            
-              runGeneratedQuery(): void {
-                if (this.generatedQuery) {
-                  this.executeDbQuery(this.generatedQuery.query, this.generatedQuery.params);
-                  this.generatedQuery = null; // Clear the generated query after running
-                }
-              }
-              
+                                const parsedResponse = JSON.parse(aiContent);
+                                if (parsedResponse.type === 'query' && parsedResponse.query) {
+                                  this.chatHistory.push({ role: 'assistant', content: `Here is the SQL query to retrieve the information you requested: \n\`\`\`sql\n${parsedResponse.query}\n\`\`\`\nParameters: \`${JSON.stringify(parsedResponse.params)}\`\nExecuting the query now...` });
+                                  this.cdr.detectChanges(); // Update UI with generated query message
+                                  this.executeDbQuery(parsedResponse.query, parsedResponse.params); // Execute automatically
+                                } else {
+                                  this.chatHistory.push({ role: 'assistant', content: aiContent });
+                                }
+                              } catch (e) {
+                                // Not a JSON response, treat as regular chat message
+                                this.chatHistory.push({ role: 'assistant', content: aiContent });
+                              }
+                              this.cdr.detectChanges(); // Manually trigger change detection
+                            },
+                            error: (err) => {
+                              console.error('AI API Error:', err);
+                              this.aiError = 'Failed to get AI response. Check console for details.';
+                              this.loadingAi = false;
+                              this.chatHistory.push({ role: 'assistant', content: 'Error communicating with AI.' });
+                              this.cdr.detectChanges(); // Manually trigger change detection on error
+                            }
+                          });
+                        }
+                      
+                                    
     // executeDbQuery now directly called when AI generates a query
     executeDbQuery(query: string, params: any[] = []): void {
       this.loadingDb = true;

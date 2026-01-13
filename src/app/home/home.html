@@ -10,7 +10,7 @@
       <div class="chat-header"><i class="fas fa-robot"></i> AI Applicant Chat</div>
       <div class="chat-body" id="chat">
           <div *ngFor="let msg of chatHistory" [ngClass]="{'user-message': msg.role === 'user', 'assistant-message': msg.role === 'assistant'}">
-              <span class="message-role">{{ msg.role === 'user' ? 'You' : 'AI' }}:</span> {{ msg.content }}
+              <span class="message-content">{{ msg.content }}</span>
           </div>
           <div *ngIf="loadingAi" class="loading-indicator">AI is typing...</div>
           <div *ngIf="aiError" class="error-message">{{ aiError }}</div>
@@ -18,7 +18,6 @@
       <div class="chat-input">
           <input id="msg" class="form-control" [(ngModel)]="userMessage" (keyup.enter)="sendChatMessage()" placeholder="Ask AI about applicants…" [disabled]="loadingAi">
           <button class="btn btn-primary" (click)="sendChatMessage()" [disabled]="loadingAi">Send</button>
-          <button class="btn btn-success execute-query-btn" *ngIf="generatedQuery" (click)="runGeneratedQuery()">Execute Query</button>
       </div>
   </div>
 
