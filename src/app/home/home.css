@@ -1,0 +1,124 @@
+:root{
+    --primary:#2563eb;
+    --dark:#020617;
+    --card:#ffffff;
+    --muted:#94a3b8;
+    --danger:#ef4444;
+}
+
+body{
+    min-height:100vh;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(37,99,235,.25), transparent 40%),
+        radial-gradient(circle at 80% 0%, rgba(34,197,94,.25), transparent 35%),
+        linear-gradient(135deg,#020617,#020617);
+    font-family:Inter,Segoe UI,system-ui,sans-serif;
+}
+
+.wrapper{
+    max-width:1300px;
+    margin:auto;
+    padding:24px;
+}
+
+/* NAV */
+.ai-nav{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    background:rgba(255,255,255,.08);
+    backdrop-filter:blur(10px);
+    padding:14px 18px;
+    border-radius:16px;
+    margin-bottom:22px;
+    box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+.ai-nav .brand{
+    background:linear-gradient(135deg,#f59e0b,#facc15);
+    color:#111827;
+    font-weight:900;
+    padding:8px 14px;
+    border-radius:12px;
+    margin-right:auto;
+}
+.ai-nav a{
+    color:#e5e7eb;
+    text-decoration:none;
+    font-weight:600;
+    opacity:.85;
+}
+.ai-nav a.active{
+    color:#22c55e;
+    border-bottom:2px solid #22c55e;
+}
+
+/* GLASS CARD */
+.card-box{
+    background:rgba(255,255,255,.85);
+    backdrop-filter:blur(14px);
+    border-radius:18px;
+    box-shadow:0 20px 40px rgba(0,0,0,.25);
+    margin-bottom:22px;
+    overflow:hidden;
+}
+
+/* CHAT */
+.chat-header{
+    padding:18px 20px;
+    font-weight:900;
+    border-bottom:1px solid #e5e7eb;
+}
+.chat-body{
+    max-height:260px;
+    overflow:auto;
+    padding:20px;
+}
+.chat-input{
+    display:flex;
+    gap:12px;
+    padding:16px;
+    border-top:1px solid #e5e7eb;
+    background:#f8fafc;
+}
+
+.user{text-align:right;margin-bottom:12px}
+.user span{
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    color:#fff;
+    padding:9px 16px;
+    border-radius:18px 18px 0 18px;
+    display:inline-block;
+    max-width:75%;
+}
+.bot span{
+    background:#e5e7eb;
+    padding:9px 16px;
+    border-radius:18px 18px 18px 0;
+    display:inline-block;
+    max-width:75%;
+}
+
+/* RESULTS */
+.results-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 20px;
+    border-bottom:1px solid #e5e7eb;
+}
+.results-header h5{margin:0;font-weight:900}
+.results-count{font-size:13px;color:var(--muted)}
+
+.table thead{background:#f8fafc}
+.table tbody tr:hover{background:#f1f5f9}
+.days-old{font-weight:800}
+.days-old.danger{color:var(--danger)}
+
+a.table-link{
+    color:#1d4ed8;
+    font-weight:700;
+    text-decoration:none;
+}
+a.table-link:hover{
+    text-decoration:underline;
+}

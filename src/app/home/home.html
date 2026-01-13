@@ -21,3 +21,56 @@
     </div>
   </section>
 </div>
+
+<div class="wrapper">
+
+<div class="ai-nav">
+    <span class="brand">DOHA ENERGY CORPORATION</span>
+    <a href="chatbot.php" class="">AI Applicant</a>
+    <a href="chatexpenses.php" class="">AI Expenses</a>
+</div>
+
+<div class="card-box chat">
+    <div class="chat-header">AI Applicant Chat</div>
+    <div class="chat-body" id="chat">
+        <div class="bot">
+            <span>
+                Try typing:<br>
+                • Santos<br>
+                • Juan Santos<br>
+                • agent Juan<br>
+                • reports April 2024
+            </span>
+        </div>
+    </div>
+    <div class="chat-input">
+        <input id="msg" class="form-control" placeholder="Ask AI about applicants…">
+        <button class="btn btn-primary">Send</button>
+    </div>
+</div>
+
+<div class="card-box results">
+    <div class="results-header">
+        <h5 id="title">Results</h5>
+        <div id="count" class="results-count"></div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Applicant</th>
+                    <th>Agent</th>
+                    <th>Country</th>
+                    <th>Date Applied</th>
+                    <th>Days</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+        </table>
+    </div>
+</div>
+
+</div>

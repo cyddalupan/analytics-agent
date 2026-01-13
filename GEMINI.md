@@ -133,6 +133,8 @@ The Angular application is built into the `./live/` directory within this reposi
 
 This script automates the build, staging, commit, and push process for the Angular application. It should be run from the root of this repository.
 
+**IMPORTANT:** Always run `./build_and_stage.sh` after *any* code change to ensure the `live/` directory is updated and changes are staged, committed, and pushed.
+
 ```bash
 #!/bin/bash
 

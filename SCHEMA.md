@@ -41,5 +41,10 @@ Table: country
 country_id int(10) = applicant_preferred_country
 country_name	varchar(100)
 
+---
+
+
+Table: applicant_experiences
+
 
 
