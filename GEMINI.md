@@ -104,6 +104,27 @@ The frontend is an Angular application responsible for all business logic, UI re
 - **No Unit Tests**: For now, unit tests are not a requirement. Testing will be performed manually.
 - **SCHEMA.md**: A `SCHEMA.md` file will be created later to document the database schema.
 
+### Troubleshooting UI Updates (Angular)
+
+**Problem**: API calls return data successfully, but the Angular UI (template) does not update to reflect the new data, remaining stuck in a loading state.
+
+**Common Causes & Resolution**:
+Angular's change detection system usually handles UI updates automatically, especially for asynchronous operations like HTTP requests. However, issues can arise due to:
+1.  **Change Detection Context**: In rare or specific scenarios, the change detection might not be triggered.
+2.  **Data Assignment Timing**: Rapid state changes or incorrect data flow can lead to the UI not re-rendering at the opportune moment.
+3.  **Component State Management**: If component properties are not correctly initialized or cleared, they might hold stale data.
+
+**Debugging & Solution Approach**:
+*   **Explicit State Management**: Ensure that loading flags (`loadingDb`, `loadingAi`) are correctly set to `true` before a fetch and `false` after success or error. Also, explicitly clear previous data (`dbResponse = null`, `aiResponse = null`) before initiating new requests.
+*   **Manual Change Detection (`ChangeDetectorRef`)**: If automatic change detection fails, `ChangeDetectorRef` can be injected into the component, and `this.cdr.detectChanges()` can be called after significant state updates (e.g., after `dbResponse` is assigned) to force a UI refresh.
+*   **Console Logging**: Extensive `console.log()` statements (e.g., logging loading states, received data, and error messages) are invaluable for tracing the execution flow and confirming variable values at different stages of the component lifecycle.
+
+**Resolution in `HomeComponent`**:
+The issue was resolved by:
+*   Initializing `dbResponse` and `aiResponse` to `null`.
+*   Explicitly setting `dbResponse = null` and `aiResponse = null` before each API call to ensure a clean state.
+*   Injecting `ChangeDetectorRef` and calling `this.cdr.detectChanges()` after data assignment and error handling to ensure UI updates are triggered reliably.
+
 ## Deployment
 
 The Angular application is built into the `./live/` directory within this repository. This `live/` directory's contents are what should be deployed to a web server.
