@@ -22,8 +22,7 @@ export class HomeComponent implements OnInit {
     userMessage: string = '';
     dbQueryResult: any[] | null = null;
     showResultsTable: boolean = false;
-        resultsTableHeaders: string[] = [];
-        generatedQuery: { query: string, params: any[] } | null = null;    
+        resultsTableHeaders: string[] = [];    
     private schemaInfo: string = `
   Table: applicant
   applicant_id		int(10)
@@ -83,43 +82,39 @@ export class HomeComponent implements OnInit {
       this.cdr.detectChanges(); // Update UI to show user message and loading
   
       // Construct the system prompt with schema information and AI instructions
-              const systemPrompt = `You are a database querying assistant. Your goal is to generate a single, executable SQL SELECT query based on the user's request.
-          
-              The database schema is as follows:
-              ${this.schemaInfo}
-          
-              When searching for names (e.g., applicant_first, applicant_last, employer_name), always use the LIKE operator for broader, case-insensitive matching (e.g., "applicant_last LIKE '%Santos%'").
-          
-              You have only two possible response types:
-              1.  If the user's request is ambiguous or lacks detail, ask clarifying questions to get the necessary information.
-              2.  If you have enough information to create a query, you MUST respond with ONLY a JSON object and nothing else. Your entire response must be the JSON object.
-          
-              Do NOT add any conversational text, introductions, or preambles like "I will now..." or "Here is the query..." before the JSON.
-          
-              The JSON format MUST be:
-              {"type": "query", "query": "SELECT ... FROM ... WHERE ...", "params": ["param1", "param2"]}
-              `;      // Prepare history for AI call, excluding the initial greeting
+                  const systemPrompt = `You are a helpful assistant that can generate SQL SELECT queries based on user requests.
+                  The database schema is as follows:
+                  ${this.schemaInfo}
+              
+                  When searching for names (e.g., applicant_first, applicant_last, employer_name), always use the LIKE operator for broader, case-insensitive matching (e.g., "applicant_last LIKE '%Santos%'").
+              
+                  Your primary goal is to provide a single, executable SQL query. If you have enough information, you can provide the query directly. If you need more details, ask the user clarifying questions. When you provide a query, prefer the JSON format:
+                  {"type": "query", "query": "SELECT ...", "params": [...]}
+                  However, you may also include the query within a natural language response.
+                  `;      // Prepare history for AI call, excluding the initial greeting
       const historyForAi = this.chatHistory.slice(1, -1); // Exclude initial assistant message and current user message
   
       this.apiService.callAi(systemPrompt, historyForAi, message).subscribe({
         next: (data) => {
           this.loadingAi = false;
-          const aiContent = data.response; // Assuming the AI response is in data.response
-  
-          try {
-            const parsedResponse = JSON.parse(aiContent);
-            if (parsedResponse.type === 'query' && parsedResponse.query) {
-              this.generatedQuery = { query: parsedResponse.query, params: parsedResponse.params || [] };
-              this.chatHistory.push({ role: 'assistant', content: `Got it! Here is the SQL query based on your request: \n\`\`\`sql\n${parsedResponse.query}\n\`\`\`\nParameters: \`${JSON.stringify(parsedResponse.params)}\`\nIs there anything else you would like to add to the query? You can click the "Execute Query" button below to run this query.` });
-              this.cdr.detectChanges(); // Update UI with generated query
-            } else {
-              this.chatHistory.push({ role: 'assistant', content: aiContent });
-            }
-          } catch (e) {
-            // Not a JSON response, treat as regular chat message
+          const aiContent = data.response;
+
+          // Regex to find a SQL query within the AI's response
+          const queryRegex = /(SELECT\s+[\s\S]*?;)/i;
+          const match = aiContent.match(queryRegex);
+
+          if (match && match[0]) {
+            const extractedQuery = match[0];
+            console.log('Extracted Query:', extractedQuery);
+            
+            this.chatHistory.push({ role: 'assistant', content: "I've found the following information for you." });
+            this.executeDbQuery(extractedQuery, []); // Assuming no params for now
+          } else {
+            // No query found, treat as a regular chat message
             this.chatHistory.push({ role: 'assistant', content: aiContent });
           }
-          this.cdr.detectChanges(); // Manually trigger change detection
+          
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('AI API Error:', err);
@@ -131,13 +126,6 @@ export class HomeComponent implements OnInit {
       });
     }
   
-    runGeneratedQuery(): void {
-      if (this.generatedQuery) {
-        this.executeDbQuery(this.generatedQuery.query, this.generatedQuery.params);
-        this.generatedQuery = null; // Clear the generated query after running
-      }
-    }
-                                    
     // executeDbQuery now directly called when AI generates a query
     executeDbQuery(query: string, params: any[] = []): void {
       this.loadingDb = true;
