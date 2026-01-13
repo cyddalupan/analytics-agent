@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../api';
@@ -23,6 +23,9 @@ export class HomeComponent implements OnInit {
     dbQueryResult: any[] | null = null;
     showResultsTable: boolean = false;
     resultsTableHeaders: string[] = [];
+
+  @ViewChild('chatBody') chatBodyRef!: ElementRef;
+    generatedQuery: { query: string, params: any[] } | null = null;
     
     private schemaInfo: string = `
   Table: applicant
@@ -69,6 +72,14 @@ export class HomeComponent implements OnInit {
       });
     }
   
+    scrollToBottom(): void {
+      try {
+        setTimeout(() => {
+          this.chatBodyRef.nativeElement.scrollTop = this.chatBodyRef.nativeElement.scrollHeight;
+        }, 0);
+      } catch (err) { }
+    }
+  
     // sendChatMessage handles user input and AI responses
     sendChatMessage(): void {
       if (!this.userMessage.trim()) {
@@ -81,19 +92,20 @@ export class HomeComponent implements OnInit {
       this.loadingAi = true;
       this.aiError = null;
       this.cdr.detectChanges(); // Update UI to show user message and loading
+      this.scrollToBottom(); // Scroll to bottom after user message is added
   
       // Construct the system prompt with schema information and AI instructions
-      const systemPrompt = `You are a helpful assistant that can generate SQL SELECT queries based on user requests.
-      The database schema is as follows:
-      ${this.schemaInfo}
-  
-      Only generate a SQL query after you have gathered enough details from the user.
-      If you generate a query, respond in JSON format like this:
-      {"type": "query", "query": "SELECT ... FROM ... WHERE ...", "params": ["param1", "param2"]}
-      If you need more information or cannot generate a query, respond with a regular chat message.
-      Do NOT execute any queries, just generate them. Do NOT include any PHP specific syntax in the query or response.
-      `;
-  
+          const systemPrompt = `You are a helpful assistant that can generate SQL SELECT queries based on user requests.
+          The database schema is as follows:
+          ${this.schemaInfo}
+      
+          When searching for names (e.g., applicant_first, applicant_middle, applicant_last, employer_name, agent_first, agent_last), always use the LIKE operator for broader, case-insensitive matching. For example, instead of "applicant_last = 'Santos'", use "applicant_last LIKE '%Santos%'".
+          Only generate a SQL query after you have gathered enough details from the user.
+          If you generate a query, respond in JSON format like this:
+          {"type": "query", "query": "SELECT ... FROM ... WHERE ...", "params": ["param1", "param2"]}
+          If you need more information or cannot generate a query, respond with a regular chat message.
+          Do NOT execute any queries, just generate them. Do NOT include any PHP specific syntax in the query or response.
+          `;  
       // Prepare history for AI call, excluding the initial greeting
       const historyForAi = this.chatHistory.slice(1, -1); // Exclude initial assistant message and current user message
   
@@ -103,29 +115,38 @@ export class HomeComponent implements OnInit {
           const aiContent = data.response; // Assuming the AI response is in data.response
   
           try {
-                                          const parsedResponse = JSON.parse(aiContent);
-                                          if (parsedResponse.type === 'query' && parsedResponse.query) {
-                                            this.chatHistory.push({ role: 'assistant', content: `AI generated a query and is executing it now...` });
-                                            this.cdr.detectChanges(); // Update UI with status message
-                                            this.executeDbQuery(parsedResponse.query, parsedResponse.params); // Execute automatically
-                                          } else {
-                                            this.chatHistory.push({ role: 'assistant', content: aiContent });
-                                          }
-                                        } catch (e) {
-                                          // Not a JSON response, treat as regular chat message
-                                          this.chatHistory.push({ role: 'assistant', content: aiContent });
-                                        }
-                                        this.cdr.detectChanges(); // Manually trigger change detection
-                                      },                            error: (err) => {
-                              console.error('AI API Error:', err);
-                              this.aiError = 'Failed to get AI response. Check console for details.';
-                              this.loadingAi = false;
-                              this.chatHistory.push({ role: 'assistant', content: 'Error communicating with AI.' });
-                              this.cdr.detectChanges(); // Manually trigger change detection on error
-                            }
-                          });
-                        }
-                      
+            const parsedResponse = JSON.parse(aiContent);
+            if (parsedResponse.type === 'query' && parsedResponse.query) {
+              this.generatedQuery = { query: parsedResponse.query, params: parsedResponse.params || [] };
+              this.chatHistory.push({ role: 'assistant', content: `Got it! Here is the SQL query based on your request: \n\`\`\`sql\n${parsedResponse.query}\n\`\`\`\nParameters: \`${JSON.stringify(parsedResponse.params)}\`\nIs there anything else you would like to add to the query? You can click the "Execute Query" button below to run this query.` });
+              this.cdr.detectChanges(); // Update UI with generated query
+            } else {
+              this.chatHistory.push({ role: 'assistant', content: aiContent });
+            }
+          } catch (e) {
+            // Not a JSON response, treat as regular chat message
+            this.chatHistory.push({ role: 'assistant', content: aiContent });
+          }
+          this.cdr.detectChanges(); // Manually trigger change detection
+          this.scrollToBottom(); // Scroll to bottom after AI response
+        },
+        error: (err) => {
+          console.error('AI API Error:', err);
+          this.aiError = 'Failed to get AI response. Check console for details.';
+          this.loadingAi = false;
+          this.chatHistory.push({ role: 'assistant', content: 'Error communicating with AI.' });
+          this.cdr.detectChanges(); // Manually trigger change detection on error
+          this.scrollToBottom(); // Scroll to bottom on error
+        }
+      });
+    }
+  
+    runGeneratedQuery(): void {
+      if (this.generatedQuery) {
+        this.executeDbQuery(this.generatedQuery.query, this.generatedQuery.params);
+        this.generatedQuery = null; // Clear the generated query after running
+      }
+    }
                                     
     // executeDbQuery now directly called when AI generates a query
     executeDbQuery(query: string, params: any[] = []): void {

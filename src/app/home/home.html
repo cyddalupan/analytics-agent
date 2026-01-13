@@ -8,7 +8,7 @@
 
   <div class="card-box chat">
       <div class="chat-header"><i class="fas fa-robot"></i> AI Applicant Chat</div>
-      <div class="chat-body" id="chat">
+      <div class="chat-body" id="chatBody">
           <div *ngFor="let msg of chatHistory" [ngClass]="{'user-message': msg.role === 'user', 'assistant-message': msg.role === 'assistant'}">
               <span class="message-content">{{ msg.content }}</span>
           </div>

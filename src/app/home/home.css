@@ -60,6 +60,14 @@
     font-weight:900;
     border-bottom:1px solid #e5e7eb;
 }
+.chat-input{
+    display:flex;
+    gap:12px;
+    padding:16px;
+    border-top:1px solid #e5e7eb;
+    background:#f8fafc;
+    align-items: center; /* Added for vertical alignment */
+}
 
 .chat-body{
     max-height:260px;
@@ -112,7 +120,9 @@
     margin: 10px 0;
 }
 
-/* Existing styles for results-header, table, etc. */
+.card-box.results {
+    border-radius: 0; /* Remove border-radius */
+}
 .results-header h5{margin:0;font-weight:900}
 .results-count{font-size:13px;color:var(--muted)}
 
