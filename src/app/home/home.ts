@@ -88,7 +88,8 @@ export class HomeComponent implements OnInit {
                           ${this.schemaInfo}
                           
                           - Ask clarifying questions if the user's request is ambiguous.
-                          - When you have enough information to form a query, your ENTIRE response must be ONLY the raw SQL query string, starting with 'SELECT'. Do not include any other text, characters, or markdown formatting.
+                          - IMPORTANT: Never use \`SELECT *\`. You must explicitly list the column names you are selecting. Choose columns that are relevant to the user's request and the conversation history.
+    - When you have enough information to form a query, your ENTIRE response must be ONLY the raw SQL query string, starting with 'SELECT'. Do not include any other text, characters, or markdown formatting.
                           - For name searches, always use the LIKE operator (e.g., "applicant_last LIKE '%Santos%'").
                           `;
                       

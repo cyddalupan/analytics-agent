@@ -56,7 +56,7 @@
 
 /* CHAT */
 .chat-header{
-    padding:18px 20px;
+    padding:25px 20px 18px 20px;
     font-weight:900;
     border-bottom:1px solid #e5e7eb;
 }
@@ -131,7 +131,7 @@
 .card-box.results {
     border-radius: 0; /* Remove border-radius */
 }
-.results-header h5{margin:0;font-weight:900}
+.results-header h5{margin:0;font-weight:900;font-size: 20px;}
 .results-count{font-size:13px;color:var(--muted)}
 
 .table-responsive {
