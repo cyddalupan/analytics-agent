@@ -103,21 +103,20 @@ export class HomeComponent implements OnInit {
           const aiContent = data.response; // Assuming the AI response is in data.response
   
           try {
-                                const parsedResponse = JSON.parse(aiContent);
-                                if (parsedResponse.type === 'query' && parsedResponse.query) {
-                                  this.chatHistory.push({ role: 'assistant', content: `Here is the SQL query to retrieve the information you requested: \n\`\`\`sql\n${parsedResponse.query}\n\`\`\`\nParameters: \`${JSON.stringify(parsedResponse.params)}\`\nExecuting the query now...` });
-                                  this.cdr.detectChanges(); // Update UI with generated query message
-                                  this.executeDbQuery(parsedResponse.query, parsedResponse.params); // Execute automatically
-                                } else {
-                                  this.chatHistory.push({ role: 'assistant', content: aiContent });
-                                }
-                              } catch (e) {
-                                // Not a JSON response, treat as regular chat message
-                                this.chatHistory.push({ role: 'assistant', content: aiContent });
-                              }
-                              this.cdr.detectChanges(); // Manually trigger change detection
-                            },
-                            error: (err) => {
+                                          const parsedResponse = JSON.parse(aiContent);
+                                          if (parsedResponse.type === 'query' && parsedResponse.query) {
+                                            this.chatHistory.push({ role: 'assistant', content: `AI generated a query and is executing it now...` });
+                                            this.cdr.detectChanges(); // Update UI with status message
+                                            this.executeDbQuery(parsedResponse.query, parsedResponse.params); // Execute automatically
+                                          } else {
+                                            this.chatHistory.push({ role: 'assistant', content: aiContent });
+                                          }
+                                        } catch (e) {
+                                          // Not a JSON response, treat as regular chat message
+                                          this.chatHistory.push({ role: 'assistant', content: aiContent });
+                                        }
+                                        this.cdr.detectChanges(); // Manually trigger change detection
+                                      },                            error: (err) => {
                               console.error('AI API Error:', err);
                               this.aiError = 'Failed to get AI response. Check console for details.';
                               this.loadingAi = false;
