@@ -118,11 +118,25 @@
     margin: 10px 0;
 }
 
+.no-results-message {
+    padding: 20px;
+    text-align: center;
+    color: #6b7280;
+    background-color: transparent; /* Changed to transparent */
+    border: 1px solid #e5e7eb; /* Added border */
+    border-radius: 8px;
+    margin: 0 20px 20px 20px; /* Adjusted margin */
+}
+
 .card-box.results {
     border-radius: 0; /* Remove border-radius */
 }
 .results-header h5{margin:0;font-weight:900}
 .results-count{font-size:13px;color:var(--muted)}
+
+.table-responsive {
+    padding: 20px;
+}
 
 .table thead{background:#f8fafc}
 .table tbody tr:hover{background:#f1f5f9}
