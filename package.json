@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --output-path live/browser --base-href /analytics-agent/ --configuration production",
+    "build": "ng build --output-path live/browser --base-href /agent/analytics/live/ --configuration production",
     "watch": "ng build --watch --configuration development",
     "postbuild": "if [ -d live/browser/browser ]; then cp -R live/browser/browser/. live/; rm -rf live/browser; fi",
     "test": "ng test"
