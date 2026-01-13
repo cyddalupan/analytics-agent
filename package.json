@@ -6,7 +6,7 @@
     "start": "ng serve",
     "build": "ng build --output-path live/browser --base-href /analytics-agent/ --configuration production",
     "watch": "ng build --watch --configuration development",
-    "postbuild": "if [ -d live/browser ]; then cp -R live/browser/. live/; rm -rf live/browser; fi",
+    "postbuild": "if [ -d live/browser/browser ]; then cp -R live/browser/browser/. live/; rm -rf live/browser; fi",
     "test": "ng test"
   },
   "prettier": {
