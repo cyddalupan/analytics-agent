@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../api';
 
@@ -10,14 +10,14 @@ import { ApiService } from '../api';
   styleUrl: './home.css'
 })
 export class HomeComponent implements OnInit {
-  dbResponse: any = null; // Initialize to null
-  aiResponse: any = null; // Initialize to null
+  dbResponse: any = null;
+  aiResponse: any = null;
   loadingDb: boolean = false;
   loadingAi: boolean = false;
   dbError: string | null = null;
   aiError: string | null = null;
 
-  constructor(private apiService: ApiService) { }
+  constructor(private apiService: ApiService, private cdr: ChangeDetectorRef) { } // Inject ChangeDetectorRef
 
   ngOnInit(): void {
     this.fetchDbData();
@@ -27,18 +27,24 @@ export class HomeComponent implements OnInit {
   fetchDbData(): void {
     this.loadingDb = true;
     this.dbError = null;
-    this.dbResponse = null; // Clear previous data
+    this.dbResponse = null;
+    console.log('Fetching DB data...');
     const query = 'SELECT applicantNumber, sub_employer, applicant_first, applicant_middle, applicant_last FROM applicant LIMIT 5';
     this.apiService.queryDb(query).subscribe({
       next: (data) => {
         this.dbResponse = data;
         this.loadingDb = false;
+        console.log('DB data fetched:', this.dbResponse);
+        console.log('loadingDb:', this.loadingDb);
+        this.cdr.detectChanges(); // Manually trigger change detection
       },
       error: (err) => {
         console.error('DB API Error:', err);
         this.dbError = 'Failed to fetch DB data. Check console for details.';
         this.loadingDb = false;
-        this.dbResponse = null; // Ensure data is null on error
+        this.dbResponse = null;
+        console.log('DB fetch error. loadingDb:', this.loadingDb);
+        this.cdr.detectChanges(); // Manually trigger change detection on error
       }
     });
   }
@@ -46,7 +52,8 @@ export class HomeComponent implements OnInit {
   fetchAiData(): void {
     this.loadingAi = true;
     this.aiError = null;
-    this.aiResponse = null; // Clear previous data
+    this.aiResponse = null;
+    console.log('Fetching AI data...');
     const systemPrompt = 'You are a helpful assistant.';
     const history = [{ role: 'user', content: 'What is the capital of France?' }];
     const lastMessage = 'What is the capital of Japan?';
@@ -55,12 +62,17 @@ export class HomeComponent implements OnInit {
       next: (data) => {
         this.aiResponse = data;
         this.loadingAi = false;
+        console.log('AI data fetched:', this.aiResponse);
+        console.log('loadingAi:', this.loadingAi);
+        this.cdr.detectChanges(); // Manually trigger change detection
       },
       error: (err) => {
         console.error('AI API Error:', err);
         this.aiError = 'Failed to fetch AI data. Check console for details.';
         this.loadingAi = false;
-        this.aiResponse = null; // Ensure data is null on error
+        this.aiResponse = null;
+        console.log('AI fetch error. loadingAi:', this.loadingAi);
+        this.cdr.detectChanges(); // Manually trigger change detection on error
       }
     });
   }
