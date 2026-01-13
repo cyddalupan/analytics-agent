@@ -82,49 +82,64 @@ export class HomeComponent implements OnInit {
       this.cdr.detectChanges(); // Update UI to show user message and loading
   
       // Construct the system prompt with schema information and AI instructions
-                  const systemPrompt = `You are a helpful assistant that can generate SQL SELECT queries based on user requests.
-                  The database schema is as follows:
-                  ${this.schemaInfo}
-              
-                  When searching for names (e.g., applicant_first, applicant_last, employer_name), always use the LIKE operator for broader, case-insensitive matching (e.g., "applicant_last LIKE '%Santos%'").
-              
-                  Your primary goal is to provide a single, executable SQL query. If you have enough information, you can provide the query directly. If you need more details, ask the user clarifying questions. When you provide a query, prefer the JSON format:
-                  {"type": "query", "query": "SELECT ...", "params": [...]}
-                  However, you may also include the query within a natural language response.
-                  `;      // Prepare history for AI call, excluding the initial greeting
-      const historyForAi = this.chatHistory.slice(1, -1); // Exclude initial assistant message and current user message
-  
-      this.apiService.callAi(systemPrompt, historyForAi, message).subscribe({
-        next: (data) => {
-          this.loadingAi = false;
-          const aiContent = data.response;
-
-          // Regex to find a SQL query within the AI's response
-          const queryRegex = /(SELECT\s+[\s\S]*?;)/i;
-          const match = aiContent.match(queryRegex);
-
-          if (match && match[0]) {
-            const extractedQuery = match[0];
-            console.log('Extracted Query:', extractedQuery);
-            
-            this.chatHistory.push({ role: 'assistant', content: "I've found the following information for you." });
-            this.executeDbQuery(extractedQuery, []); // Assuming no params for now
-          } else {
-            // No query found, treat as a regular chat message
-            this.chatHistory.push({ role: 'assistant', content: aiContent });
-          }
-          
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error('AI API Error:', err);
-          this.aiError = 'Failed to get AI response. Check console for details.';
-          this.loadingAi = false;
-          this.chatHistory.push({ role: 'assistant', content: 'Error communicating with AI.' });
-          this.cdr.detectChanges(); // Manually trigger change detection on error
-        }
-      });
-    }
+                      const systemPrompt = `You are an assistant that generates SQL SELECT queries. Your goal is to provide a query based on the user's request and the provided schema.
+                      
+                      Database Schema:
+                      ${this.schemaInfo}
+                  
+                      - When searching for names, use the LIKE operator for case-insensitive matching (e.g., "applicant_last LIKE '%Santos%'").
+                      - If you have enough information, provide the query. You can return a JSON object like {"type": "query", "query": "SELECT ..."} or a raw SQL string.
+                      - If you need more details, ask the user clarifying questions.
+                      `;
+                  
+                      // Prepare history for AI call, excluding the initial greeting
+                      const historyForAi = this.chatHistory.slice(1, -1);
+                  
+                      this.apiService.callAi(systemPrompt, historyForAi, message).subscribe({
+                        next: (data) => {
+                          this.loadingAi = false;
+                          const aiContent = data.response.trim();
+                          let queryHandled = false;
+                  
+                          // 1. Try to parse as JSON
+                          try {
+                            const parsedResponse = JSON.parse(aiContent);
+                            if (parsedResponse.type === 'query' && parsedResponse.query) {
+                              console.log('Query found via JSON parse:', parsedResponse.query);
+                              this.executeDbQuery(parsedResponse.query, parsedResponse.params || []);
+                              queryHandled = true;
+                            }
+                          } catch (e) {
+                            // Not a valid JSON response, proceed to regex check
+                          }
+                  
+                          // 2. If not handled by JSON, try regex
+                          if (!queryHandled) {
+                            const queryRegex = /(SELECT\s+[\s\S]*?;)/i;
+                            const match = aiContent.match(queryRegex);
+                            if (match && match[0]) {
+                              const extractedQuery = match[0];
+                              console.log('Query found via regex:', extractedQuery);
+                              this.executeDbQuery(extractedQuery, []);
+                              queryHandled = true;
+                            }
+                          }
+                  
+                          // 3. If still not handled, treat as a conversational message
+                          if (!queryHandled) {
+                            this.chatHistory.push({ role: 'assistant', content: aiContent });
+                          }
+                          
+                          this.cdr.detectChanges();
+                        },
+                        error: (err) => {
+                          console.error('AI API Error:', err);
+                          this.aiError = 'Failed to get AI response. Check console for details.';
+                          this.loadingAi = false;
+                          this.chatHistory.push({ role: 'assistant', content: 'Error communicating with AI.' });
+                          this.cdr.detectChanges();
+                        }
+                      });    }
   
     // executeDbQuery now directly called when AI generates a query
     executeDbQuery(query: string, params: any[] = []): void {
