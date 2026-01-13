@@ -130,6 +130,8 @@ The issue was resolved by:
 
 The Angular application is built into the `./live/` directory within this repository. This `live/` directory's contents are what should be deployed to a web server.
 
+**IMPORTANT:** After *any* code change, you *must* run `./build_and_stage.sh` from the root of this repository. This script automates the build process, updates the `live/` directory, and handles Git staging, committing, and pushing. Do not run `npm run build` directly.
+
 ### `build_and_stage.sh`
 
 This script automates the build, staging, commit, and push process for the Angular application. It should be run from the root of this repository.

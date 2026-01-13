@@ -1,53 +1,58 @@
 <div class="wrapper">
 
-<div class="ai-nav">
-    <span class="brand">DOHA ENERGY CORPORATION</span>
-    <a href="chatbot.php" class=""><i class="fas fa-robot"></i> AI Applicant</a>
-    <a href="chatexpenses.php" class=""><i class="fas fa-money-bill-wave"></i> AI Expenses</a>
-</div>
+  <div class="ai-nav">
+      <span class="brand">DOHA ENERGY CORPORATION</span>
+      <a href="#" class=""><i class="fas fa-robot"></i> AI Applicant</a>
+      <a href="#" class=""><i class="fas fa-money-bill-wave"></i> AI Expenses</a>
+  </div>
 
-<div class="card-box chat">
-    <div class="chat-header"><i class="fas fa-robot"></i> AI Applicant Chat</div>
-    <div class="chat-body" id="chat">
-        <div class="bot">
-            <span>
-                Try typing:<br>
-                • Santos<br>
-                • Juan Santos<br>
-                • agent Juan<br>
-                • reports April 2024
-            </span>
-        </div>
-    </div>
-    <div class="chat-input">
-        <input id="msg" class="form-control" placeholder="Ask AI about applicants…">
-        <button class="btn btn-primary">Send</button>
-    </div>
-</div>
+  <div class="card-box chat">
+      <div class="chat-header"><i class="fas fa-robot"></i> AI Applicant Chat</div>
+      <div class="chat-body" id="chat">
+          <div *ngFor="let msg of chatHistory" [ngClass]="{'user-message': msg.role === 'user', 'assistant-message': msg.role === 'assistant'}">
+              <span class="message-role">{{ msg.role === 'user' ? 'You' : 'AI' }}:</span> {{ msg.content }}
+          </div>
+          <div *ngIf="loadingAi" class="loading-indicator">AI is typing...</div>
+          <div *ngIf="aiError" class="error-message">{{ aiError }}</div>
+      </div>
+      <div class="chat-input">
+          <input id="msg" class="form-control" [(ngModel)]="userMessage" (keyup.enter)="sendChatMessage()" placeholder="Ask AI about applicants…" [disabled]="loadingAi">
+          <button class="btn btn-primary" (click)="sendChatMessage()" [disabled]="loadingAi">Send</button>
+      </div>
+  </div>
 
-<div class="card-box results">
-    <div class="results-header">
-        <h5 id="title">Results</h5>
-        <div id="count" class="results-count"></div>
-    </div>
+  <div class="card-box results">
+      <div class="results-header">
+          <h5 id="title">Query Results</h5>
+          <div id="count" class="results-count" *ngIf="dbQueryResult && dbQueryResult.length > 0">{{ dbQueryResult.length }} records</div>
+      </div>
 
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Applicant</th>
-                    <th>Agent</th>
-                    <th>Country</th>
-                    <th>Date Applied</th>
-                    <th>Days</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="rows"></tbody>
-        </table>
-    </div>
-</div>
+      <div class="table-responsive">
+          <div *ngIf="loadingDb" class="loading-indicator">Loading database results...</div>
+          <div *ngIf="dbError" class="error-message">{{ dbError }}</div>
+
+          <div *ngIf="showResultsTable && dbQueryResult && dbQueryResult.length > 0">
+              <table class="table table-hover align-middle mb-0">
+                  <thead>
+                      <tr>
+                          <th *ngFor="let header of resultsTableHeaders">{{ header }}</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr *ngFor="let row of dbQueryResult">
+                          <td *ngFor="let header of resultsTableHeaders">{{ row[header] }}</td>
+                      </tr>
+                  </tbody>
+              </table>
+          </div>
+          <div *ngIf="showResultsTable && (!dbQueryResult || dbQueryResult.length === 0)" class="no-results-message">
+              No results found for the query.
+          </div>
+          <div *ngIf="!showResultsTable" class="no-results-message">
+              Query results will appear here after the AI generates and executes a database query.
+          </div>
+      </div>
+  </div>
 
 </div>
 
