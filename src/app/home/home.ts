@@ -22,11 +22,8 @@ export class HomeComponent implements OnInit {
     userMessage: string = '';
     dbQueryResult: any[] | null = null;
     showResultsTable: boolean = false;
-    resultsTableHeaders: string[] = [];
-
-  @ViewChild('chatBody') chatBodyRef!: ElementRef;
-    generatedQuery: { query: string, params: any[] } | null = null;
-    
+        resultsTableHeaders: string[] = [];
+        generatedQuery: { query: string, params: any[] } | null = null;    
     private schemaInfo: string = `
   Table: applicant
   applicant_id		int(10)
@@ -72,14 +69,6 @@ export class HomeComponent implements OnInit {
       });
     }
   
-    scrollToBottom(): void {
-      try {
-        setTimeout(() => {
-          this.chatBodyRef.nativeElement.scrollTop = this.chatBodyRef.nativeElement.scrollHeight;
-        }, 0);
-      } catch (err) { }
-    }
-  
     // sendChatMessage handles user input and AI responses
     sendChatMessage(): void {
       if (!this.userMessage.trim()) {
@@ -92,7 +81,6 @@ export class HomeComponent implements OnInit {
       this.loadingAi = true;
       this.aiError = null;
       this.cdr.detectChanges(); // Update UI to show user message and loading
-      this.scrollToBottom(); // Scroll to bottom after user message is added
   
       // Construct the system prompt with schema information and AI instructions
               const systemPrompt = `You are a database querying assistant. Your goal is to generate a single, executable SQL SELECT query based on the user's request.
@@ -132,7 +120,6 @@ export class HomeComponent implements OnInit {
             this.chatHistory.push({ role: 'assistant', content: aiContent });
           }
           this.cdr.detectChanges(); // Manually trigger change detection
-          this.scrollToBottom(); // Scroll to bottom after AI response
         },
         error: (err) => {
           console.error('AI API Error:', err);
@@ -140,7 +127,6 @@ export class HomeComponent implements OnInit {
           this.loadingAi = false;
           this.chatHistory.push({ role: 'assistant', content: 'Error communicating with AI.' });
           this.cdr.detectChanges(); // Manually trigger change detection on error
-          this.scrollToBottom(); // Scroll to bottom on error
         }
       });
     }
