@@ -101,6 +101,7 @@ The frontend is an Angular application responsible for all business logic, UI re
 ### Development Guidelines
 
 - **Strict Typing**: Strict TypeScript checking is enforced. All contributions must adhere to this policy, avoiding the use of `any` and defining explicit types.
+- **Generous Icon Usage**: When adding new features or improving existing ones, be generous in incorporating Font Awesome icons to enhance visual clarity and user experience.
 - **No Unit Tests**: For now, unit tests are not a requirement. Testing will be performed manually.
 - **SCHEMA.md**: A `SCHEMA.md` file will be created later to document the database schema.
 
