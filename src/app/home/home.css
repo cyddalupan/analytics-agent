@@ -130,6 +130,7 @@
 
 .card-box.results {
     border-radius: 0; /* Remove border-radius */
+    padding: 10px;
 }
 .results-header h5{margin:0;font-weight:900;font-size: 20px;}
 .results-count{font-size:13px;color:var(--muted)}
