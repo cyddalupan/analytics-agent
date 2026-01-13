@@ -95,18 +95,22 @@ export class HomeComponent implements OnInit {
       this.scrollToBottom(); // Scroll to bottom after user message is added
   
       // Construct the system prompt with schema information and AI instructions
-          const systemPrompt = `You are a helpful assistant that can generate SQL SELECT queries based on user requests.
-          The database schema is as follows:
-          ${this.schemaInfo}
-      
-          When searching for names (e.g., applicant_first, applicant_middle, applicant_last, employer_name, agent_first, agent_last), always use the LIKE operator for broader, case-insensitive matching. For example, instead of "applicant_last = 'Santos'", use "applicant_last LIKE '%Santos%'".
-          Only generate a SQL query after you have gathered enough details from the user.
-          If you generate a query, respond in JSON format like this:
-          {"type": "query", "query": "SELECT ... FROM ... WHERE ...", "params": ["param1", "param2"]}
-          If you need more information or cannot generate a query, respond with a regular chat message.
-          Do NOT execute any queries, just generate them. Do NOT include any PHP specific syntax in the query or response.
-          `;  
-      // Prepare history for AI call, excluding the initial greeting
+              const systemPrompt = `You are a database querying assistant. Your goal is to generate a single, executable SQL SELECT query based on the user's request.
+          
+              The database schema is as follows:
+              ${this.schemaInfo}
+          
+              When searching for names (e.g., applicant_first, applicant_last, employer_name), always use the LIKE operator for broader, case-insensitive matching (e.g., "applicant_last LIKE '%Santos%'").
+          
+              You have only two possible response types:
+              1.  If the user's request is ambiguous or lacks detail, ask clarifying questions to get the necessary information.
+              2.  If you have enough information to create a query, you MUST respond with ONLY a JSON object and nothing else. Your entire response must be the JSON object.
+          
+              Do NOT add any conversational text, introductions, or preambles like "I will now..." or "Here is the query..." before the JSON.
+          
+              The JSON format MUST be:
+              {"type": "query", "query": "SELECT ... FROM ... WHERE ...", "params": ["param1", "param2"]}
+              `;      // Prepare history for AI call, excluding the initial greeting
       const historyForAi = this.chatHistory.slice(1, -1); // Exclude initial assistant message and current user message
   
       this.apiService.callAi(systemPrompt, historyForAi, message).subscribe({
